@@ -561,7 +561,53 @@ function docleanup($forceAll = 0, $printProgress = false)
             }
         }
     }
+    
+    function do_promotion($class, $maxclass, $user_id, $dt, $addinvite = 0){
+        $subject = sqlesc($lang_cleanup_target [get_user_lang($user_id)] ['msg_promoted_to'] . get_user_class_name($class, false, false, false));
+        $msg = sqlesc($lang_cleanup_target [get_user_lang($user_id)] ['msg_now_you_are'] . get_user_class_name($class, false, false, false) . $lang_cleanup_target [get_user_lang($user_id)] ['msg_see_faq']);
+        if ($class <= $maxclass){
+            sql_query("UPDATE users SET class = $class WHERE id = $user_id") or sqlerr(__FILE__, __LINE__);
+        }
+        else {
+            sql_query("UPDATE users SET class = $class, max_class_once=$class, invites=invites+$addinvite WHERE id = $user_id") or sqlerr(__FILE__, __LINE__);
+        }
+        
+        sql_query("INSERT INTO messages (sender, receiver, added, subject, msg) VALUES(0, $user_id, $dt, $subject, $msg)") or sqlerr(__FILE__, __LINE__);
+    }
 
+    function query_posts($user_id){
+        $r = sql_query("SELECT count(*) as num FROM torrents WHERE id = $arr['id']") or sqlerr(__FILE__, __LINE__);
+        if (mysql_num_rows($r) > 0){
+            $x = mysql_fetch_assoc($r);
+            return $x['num'];
+        }
+        return 0;
+    }
+
+    function promotion2($class, $down_floor_gb, $minratio, $time_week, $acquire_bonus, $acquire_post, $addinvite = 0)
+    {
+        global $lang_cleanup_target;
+        $oriclass = $class - 1;
+
+        if ($down_floor_gb) {
+            $limit = $down_floor_gb * 1024 * 1024 * 1024;
+            $maxdt = date("Y-m-d H:i:s", (TIMENOW - 86400 * 7 * $time_week));
+            $res = sql_query("SELECT id, max_class_once FROM users WHERE class = $oriclass AND downloaded >= $limit AND uploaded / downloaded >= $minratio AND added < " . sqlesc($maxdt)) or sqlerr(__FILE__, __LINE__);
+            if (mysql_num_rows($res) > 0) {
+                $dt = sqlesc(date("Y-m-d H:i:s"));
+                while ($arr = mysql_fetch_assoc($res)) {
+                    do_promotion($class, $arr['max_class_once'], $arr['id'], $dt, $addinvite);
+                }
+            }
+        }
+        $res = sql_query("SELECT id, max_class_once, seedbonus FROM users WHERE class = $oriclass AND added < " . sqlesc($maxdt)) or sqlerr(__FILE__, __LINE__);
+        if (mysql_num_rows($res) > 0) {
+            $dt = sqlesc(date("Y-m-d H:i:s"));
+                    if ($r['num'] > query_posts($arr['id']) && $arr['seedbonus'] >= $acquire_bonus) {// CHECK IF NEED PROMOTION
+                        do_promotion($class, $arr['max_class_once'], $arr['id'], $dt, $addinvite);
+                    }
+        }
+    }
     // do not change the ascending order
     promotion(UC_POWER_USER, $pudl_account, $puprratio_account, $putime_account, $getInvitesByPromotion_class [UC_POWER_USER]);
     promotion(UC_ELITE_USER, $eudl_account, $euprratio_account, $eutime_account, $getInvitesByPromotion_class [UC_ELITE_USER]);
@@ -576,6 +622,14 @@ function docleanup($forceAll = 0, $printProgress = false)
         printProgress("将用户升级到其他等级");
     }
 
+    function do_demotion($class, $user_id, $newclass, $deratio, $dt){
+        $subject = $lang_cleanup_target [get_user_lang($user_id)] ['msg_demoted_to'] . get_user_class_name($newclass, false, false, false);
+        $msg = $lang_cleanup_target [get_user_lang($user_id)] ['msg_demoted_from'] . get_user_class_name($class, false, false, false) . $lang_cleanup_target [get_user_lang($user_id)] ['msg_to'] . get_user_class_name($newclass, false, false, false) .
+            $lang_cleanup_target [get_user_lang($user_id)] ['msg_because_ratio_drop_below'] . $deratio . ".\n";
+        sql_query("UPDATE users SET class = $newclass WHERE id = $arr[id]") or sqlerr(__FILE__, __LINE__);
+        sql_query("INSERT INTO messages (sender, receiver, added, subject, msg) VALUES(0, $user_id, $dt, " . sqlesc($subject) . ", " . sqlesc($msg) . ")") or sqlerr(__FILE__, __LINE__);
+    }
+
     // start demotion
     function demotion($class, $deratio)
     {
@@ -586,10 +640,21 @@ function docleanup($forceAll = 0, $printProgress = false)
         if (mysql_num_rows($res) > 0) {
             $dt = sqlesc(date("Y-m-d H:i:s"));
             while ($arr = mysql_fetch_assoc($res)) {
-                $subject = $lang_cleanup_target [get_user_lang($arr ['id'])] ['msg_demoted_to'] . get_user_class_name($newclass, false, false, false);
-                $msg = $lang_cleanup_target [get_user_lang($arr ['id'])] ['msg_demoted_from'] . get_user_class_name($class, false, false, false) . $lang_cleanup_target [get_user_lang($arr ['id'])] ['msg_to'] . get_user_class_name($newclass, false, false, false) . $lang_cleanup_target [get_user_lang($arr ['id'])] ['msg_because_ratio_drop_below'] . $deratio . ".\n";
-                sql_query("UPDATE users SET class = $newclass WHERE id = $arr[id]") or sqlerr(__FILE__, __LINE__);
-                sql_query("INSERT INTO messages (sender, receiver, added, subject, msg) VALUES(0, $arr[id], $dt, " . sqlesc($subject) . ", " . sqlesc($msg) . ")") or sqlerr(__FILE__, __LINE__);
+                do_demotion($class, $newclass, $arr['id'], $deratio, $dt);
+            }
+        }
+    }
+
+    function demotion2($class, $acquire_bonus, $acquire_post, $deratio)
+    {
+        global $lang_cleanup_target;
+        $newclass = $class - 1;
+        $res = sql_query("SELECT id, seedbonus FROM users WHERE class = $class AND uploaded / downloaded < $deratio") or sqlerr(__FILE__, __LINE__);
+        if (mysql_num_rows($res) > 0) {
+            $dt = sqlesc(date("Y-m-d H:i:s"));
+            while ($arr = mysql_fetch_assoc($res)) {
+                if ($acquire_bonus > $arr['seedbouns'] || $acquire_post > query_posts($arr['id']))
+                    do_demotion($class, $newclass, $arr['id'], $deratio, $dt);
             }
         }
     }
