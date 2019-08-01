@@ -59,6 +59,30 @@ $ACCOUNT=array(
         '8' => '2',
         '9' => '3',
     ),
+    'SEEDPROMOTE' = array(
+        'ACQUIRE_BOUNS' => array(
+            'ps' => '0',
+            'pu' => '33000',
+            'eu' => '108000',
+            'cu' => '200000',
+            'iu' => '400000',
+            'vu' => '960000',
+            'eu' => '2000000',
+            'uu' => '3480000',
+            'nm' => '5000000'
+        ),
+        'ACQUIRE_POST' => array(
+            'ps' => '0',
+            'pu' => '1',
+            'eu' => '5',
+            'cu' => '10',
+            'iu' => '15',
+            'vu' => '30',
+            'eu' => '60',
+            'uu' => '120',
+            'nm' => '500'
+        ),
+    )
 );
 $ADVERTISEMENT=array(
     'enablead' => 'yes',

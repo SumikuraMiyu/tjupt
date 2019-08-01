@@ -376,6 +376,7 @@ $nmdl_account = $ACCOUNT ['nmdl'];
 $nmprratio_account = $ACCOUNT ['nmprratio'];
 $nmderatio_account = $ACCOUNT ['nmderatio'];
 $getInvitesByPromotion_class = $ACCOUNT ['getInvitesByPromotion'];
+$bouns_promote_options = $ACCOUNT ['SEEDPROMOTE'];
 
 $prorules_torrent = $TORRENT ['prorules'];
 $randomhalfleech_torrent = $TORRENT ['randomhalfleech'];

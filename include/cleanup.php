@@ -21,6 +21,7 @@ function docleanup($forceAll = 0, $printProgress = false)
     global $neverdelete_account, $neverdeletepacked_account, $deletepacked_account, $deleteunpacked_account, $deletenotransfer_account, $deletenotransfertwo_account, $deletepeasant_account, $psdlone_account, $psratioone_account, $psdltwo_account, $psratiotwo_account, $psdlthree_account, $psratiothree_account, $psdlfour_account, $psratiofour_account, $psdlfive_account, $psratiofive_account, $putime_account, $pudl_account, $puprratio_account, $puderatio_account, $eutime_account, $eudl_account, $euprratio_account, $euderatio_account, $cutime_account, $cudl_account, $cuprratio_account, $cuderatio_account, $iutime_account, $iudl_account, $iuprratio_account, $iuderatio_account, $vutime_account, $vudl_account, $vuprratio_account, $vuderatio_account, $exutime_account, $exudl_account, $exuprratio_account, $exuderatio_account, $uutime_account, $uudl_account, $uuprratio_account, $uuderatio_account, $nmtime_account, $nmdl_account, $nmprratio_account, $nmderatio_account, $getInvitesByPromotion_class;
     global $enablenoad_advertisement, $noad_advertisement;
     global $Cache;
+    global $bouns_promote_options;
 
     set_time_limit(0);
     ignore_user_abort(1);
@@ -608,15 +609,30 @@ function docleanup($forceAll = 0, $printProgress = false)
                     }
         }
     }
+
+    $ENABLE_NEW_PROMOTION_POLICY = FALSE;
+
     // do not change the ascending order
-    promotion(UC_POWER_USER, $pudl_account, $puprratio_account, $putime_account, $getInvitesByPromotion_class [UC_POWER_USER]);
-    promotion(UC_ELITE_USER, $eudl_account, $euprratio_account, $eutime_account, $getInvitesByPromotion_class [UC_ELITE_USER]);
-    promotion(UC_CRAZY_USER, $cudl_account, $cuprratio_account, $cutime_account, $getInvitesByPromotion_class [UC_CRAZY_USER]);
-    promotion(UC_INSANE_USER, $iudl_account, $iuprratio_account, $iutime_account, $getInvitesByPromotion_class [UC_INSANE_USER]);
-    promotion(UC_VETERAN_USER, $vudl_account, $vuprratio_account, $vutime_account, $getInvitesByPromotion_class [UC_VETERAN_USER]);
-    promotion(UC_EXTREME_USER, $exudl_account, $exuprratio_account, $exutime_account, $getInvitesByPromotion_class [UC_EXTREME_USER]);
-    promotion(UC_ULTIMATE_USER, $uudl_account, $uuprratio_account, $uutime_account, $getInvitesByPromotion_class [UC_ULTIMATE_USER]);
-    promotion(UC_NEXUS_MASTER, $nmdl_account, $nmprratio_account, $nmtime_account, $getInvitesByPromotion_class [UC_NEXUS_MASTER]);
+    if (!$ENABLE_NEW_PROMOTION_POLICY){
+        promotion(UC_POWER_USER, $pudl_account, $puprratio_account, $putime_account, $getInvitesByPromotion_class [UC_POWER_USER]);
+        promotion(UC_ELITE_USER, $eudl_account, $euprratio_account, $eutime_account, $getInvitesByPromotion_class [UC_ELITE_USER]);
+        promotion(UC_CRAZY_USER, $cudl_account, $cuprratio_account, $cutime_account, $getInvitesByPromotion_class [UC_CRAZY_USER]);
+        promotion(UC_INSANE_USER, $iudl_account, $iuprratio_account, $iutime_account, $getInvitesByPromotion_class [UC_INSANE_USER]);
+        promotion(UC_VETERAN_USER, $vudl_account, $vuprratio_account, $vutime_account, $getInvitesByPromotion_class [UC_VETERAN_USER]);
+        promotion(UC_EXTREME_USER, $exudl_account, $exuprratio_account, $exutime_account, $getInvitesByPromotion_class [UC_EXTREME_USER]);
+        promotion(UC_ULTIMATE_USER, $uudl_account, $uuprratio_account, $uutime_account, $getInvitesByPromotion_class [UC_ULTIMATE_USER]);
+        promotion(UC_NEXUS_MASTER, $nmdl_account, $nmprratio_account, $nmtime_account, $getInvitesByPromotion_class [UC_NEXUS_MASTER]);
+    }
+    else {
+        promotion2(UC_POWER_USER, $pudl_account, $puprratio_account, $putime_account, $bouns_promote_options['ACQUIRE_BOUNS']['pu'], $bouns_promote_options['ACQUIRE_POST']['pu'],  $getInvitesByPromotion_class [UC_POWER_USER]);
+        promotion2(UC_ELITE_USER, $eudl_account, $euprratio_account, $eutime_account, $bouns_promote_options['ACQUIRE_BOUNS']['eu'], $bouns_promote_options['ACQUIRE_POST']['eu'],  $getInvitesByPromotion_class [UC_ELITE_USER]);
+        promotion2(UC_CRAZY_USER, $cudl_account, $cuprratio_account, $cutime_account, $bouns_promote_options['ACQUIRE_BOUNS']['cu'], $bouns_promote_options['ACQUIRE_POST']['cu'],  $getInvitesByPromotion_class [UC_CRAZY_USER]);
+        promotion2(UC_INSANE_USER, $iudl_account, $iuprratio_account, $iutime_account, $bouns_promote_options['ACQUIRE_BOUNS']['iu'], $bouns_promote_options['ACQUIRE_POST']['iu'],  $getInvitesByPromotion_class [UC_INSANE_USER]);
+        promotion2(UC_VETERAN_USER, $vudl_account, $vuprratio_account, $vutime_account, $bouns_promote_options['ACQUIRE_BOUNS']['vu'], $bouns_promote_options['ACQUIRE_POST']['vu'],  $getInvitesByPromotion_class [UC_VETERAN_USER]);
+        promotion2(UC_EXTREME_USER, $exudl_account, $exuprratio_account, $exutime_account, $bouns_promote_options['ACQUIRE_BOUNS']['eu'], $bouns_promote_options['ACQUIRE_POST']['eu'],  $getInvitesByPromotion_class [UC_EXTREME_USER]);
+        promotion2(UC_ULTIMATE_USER, $uudl_account, $uuprratio_account, $uutime_account, $bouns_promote_options['ACQUIRE_BOUNS']['uu'], $bouns_promote_options['ACQUIRE_POST']['uu'],  $getInvitesByPromotion_class [UC_ULTIMATE_USER]);
+        promotion2(UC_NEXUS_MASTER, $nmdl_account, $nmprratio_account, $nmtime_account, $bouns_promote_options['ACQUIRE_BOUNS']['nm'], $bouns_promote_options['ACQUIRE_POST']['nm'],  $getInvitesByPromotion_class [UC_NEXUS_MASTER]);
+    }
     // end promotion
     if ($printProgress) {
         printProgress("将用户升级到其他等级");
@@ -660,14 +676,25 @@ function docleanup($forceAll = 0, $printProgress = false)
     }
 
     // do not change the descending order
-    demotion(UC_NEXUS_MASTER, $nmderatio_account);
-    demotion(UC_ULTIMATE_USER, $uuderatio_account);
-    demotion(UC_EXTREME_USER, $exuderatio_account);
-    demotion(UC_VETERAN_USER, $vuderatio_account);
-    demotion(UC_INSANE_USER, $iuderatio_account);
-    demotion(UC_CRAZY_USER, $cuderatio_account);
-    demotion(UC_ELITE_USER, $euderatio_account);
-    demotion(UC_POWER_USER, $puderatio_account);
+    if (!$ENABLE_NEW_PROMOTION_POLICY){
+        demotion(UC_NEXUS_MASTER, $nmderatio_account);
+        demotion(UC_ULTIMATE_USER, $uuderatio_account);
+        demotion(UC_EXTREME_USER, $exuderatio_account);
+        demotion(UC_VETERAN_USER, $vuderatio_account);
+        demotion(UC_INSANE_USER, $iuderatio_account);
+        demotion(UC_CRAZY_USER, $cuderatio_account);
+        demotion(UC_ELITE_USER, $euderatio_account);
+        demotion(UC_POWER_USER, $puderatio_account);
+    }else {
+        demotion2(UC_NEXUS_MASTER, $bouns_promote_options['ACQUIRE_BOUNS']['nm'], $bouns_promote_options['ACQUIRE_POST']['nm'], $nmderatio_account);
+        demotion2(UC_ULTIMATE_USER, $bouns_promote_options['ACQUIRE_BOUNS']['uu'], $bouns_promote_options['ACQUIRE_POST']['uu'], $uuderatio_account);
+        demotion2(UC_EXTREME_USER, $bouns_promote_options['ACQUIRE_BOUNS']['eu'], $bouns_promote_options['ACQUIRE_POST']['eu'], $exuderatio_account);
+        demotion2(UC_VETERAN_USER, $bouns_promote_options['ACQUIRE_BOUNS']['vu'], $bouns_promote_options['ACQUIRE_POST']['vu'], $vuderatio_account);
+        demotion2(UC_INSANE_USER, $bouns_promote_options['ACQUIRE_BOUNS']['iu'], $bouns_promote_options['ACQUIRE_POST']['iu'], $iuderatio_account);
+        demotion2(UC_CRAZY_USER, $bouns_promote_options['ACQUIRE_BOUNS']['cu'], $bouns_promote_options['ACQUIRE_POST']['cu'], $cuderatio_account);
+        demotion2(UC_ELITE_USER, $bouns_promote_options['ACQUIRE_BOUNS']['eu'], $bouns_promote_options['ACQUIRE_POST']['eu'], $euderatio_account);
+        demotion2(UC_POWER_USER, $bouns_promote_options['ACQUIRE_BOUNS']['pu'], $bouns_promote_options['ACQUIRE_POST']['pu'], $puderatio_account);
+    }
     if ($printProgress) {
         printProgress("将用户降级到其他等级");
     }
